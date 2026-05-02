@@ -1,0 +1,19 @@
+spring:
+  application:
+    port: 8080
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kaseauth_db
+    username: postgres
+    password: your_password_here
+    driver-class-name: org.postgresql.Driver
+
+
+server:
+  port: 9500
+
+jwt:
+  secret: kaseauth-default-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm
+  expiration: 86400000
