@@ -26,6 +26,7 @@ public abstract class BaseEntity {
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
 
+    @Column()
     private Timestamp updatedAt;
 
     @PrePersist

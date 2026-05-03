@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Integer> {
-    RoleEntity findByNameAndOrganisation(String name, String org);
-    List<RoleEntity> findByOrganisationAndIsActive(String org);
+    RoleEntity findByNameAndOrganization(String name, String org);
+    List<RoleEntity> findByOrganizationAndIsActiveTrue(String org);
 }

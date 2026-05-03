@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(schema = "role_user_mapping")
+@Table(name = "role_user_mapping")
 public class RoleUserMapping extends BaseEntity {
 
     @Column(nullable = false)

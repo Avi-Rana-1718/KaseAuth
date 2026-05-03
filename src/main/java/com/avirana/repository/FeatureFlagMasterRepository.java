@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
 public interface FeatureFlagMasterRepository extends JpaRepository<FeatureFlagMasterEntity, Integer> {
-    FeatureFlagMasterEntity findByNameAndIsActive(String name);
 }

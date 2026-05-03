@@ -8,6 +8,4 @@ import java.util.List;
 
 @Repository
 public interface FeatureFlagRoleMappingRepository extends JpaRepository<FeatureFlagUserMappingEntity, Integer> {
-
-    List<FeatureFlagUserMappingEntity> findByRoleId(Integer roleId);
 }

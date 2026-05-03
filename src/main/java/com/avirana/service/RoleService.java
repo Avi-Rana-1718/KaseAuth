@@ -20,7 +20,7 @@ public class RoleService {
 
     public String createRole(RoleCreationRequest request, XUserDetails userDetails) throws BadRequestException {
 
-        RoleEntity roleEntity = roleRepository.findByNameAndOrganisation(request.getRoleName(), userDetails.getOrg());
+        RoleEntity roleEntity = roleRepository.findByNameAndOrganization(request.getRoleName(), userDetails.getOrg());
 
         if(Objects.isNull(roleEntity)) {
             roleEntity = new RoleEntity();
@@ -36,7 +36,7 @@ public class RoleService {
     }
 
     public List<String> getAllRoles(String org) {
-        List<RoleEntity> roleEntities = roleRepository.findByOrganisationAndIsActive(org);
+        List<RoleEntity> roleEntities = roleRepository.findByOrganizationAndIsActiveTrue(org);
         List<String> roles = new ArrayList<>();
 
         for(RoleEntity roleEntity : roleEntities) {
