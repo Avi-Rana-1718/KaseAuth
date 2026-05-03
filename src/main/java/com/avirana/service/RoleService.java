@@ -18,7 +18,7 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
 
-    public String createRole(RoleCreationRequest request, XUserDetails userDetails) throws BadRequestException {
+    public String createRole(RoleCreationRequest request, XUserDetails userDetails) {
 
         RoleEntity roleEntity = roleRepository.findByNameAndOrganization(request.getRoleName(), userDetails.getOrg());
 
