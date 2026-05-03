@@ -10,6 +10,7 @@ import com.avirana.dto.SignupRequest;
 import com.avirana.dto.SigninResponse;
 import com.avirana.dto.XUserDetails;
 import com.avirana.entity.UserEntity;
+import com.avirana.enums.TokenEnum;
 import com.avirana.repository.UserRepository;
 import com.avirana.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,7 @@ public class AuthService {
 	}
 
 	public SigninResponse refresh(String refreshToken) {
+        refreshToken = refreshToken.replace("Bearer ", "");
 		if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
 		}
@@ -74,11 +76,19 @@ public class AuthService {
 	}
 
 	public XUserDetails validate(String accessToken) {
+        accessToken = accessToken.replace("Bearer ", "");
 		if (!jwtUtil.isTokenValid(accessToken)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token");
 		}
 
+       String type = jwtUtil.extractClaim(accessToken, claims ->claims.get("type", String.class));
+
+        if(!type.equals(TokenEnum.ACCESS.getValue())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token can't be used to access resources");
+        }
+
         String email = jwtUtil.extractSubject(accessToken);
+
 
         UserEntity userEntity = userRepository.findByEmail(email);
 

@@ -22,7 +22,7 @@ public class JwtUtil {
 	@Value("${jwt.expiration}")
 	private long expirationMillis;
 
-	@Value("${jwt.refresh-expiration:604800000}")
+	@Value("${jwt.refresh-expiration}")
 	private long refreshExpirationMillis;
 
 	public String generateRefreshToken(String subject) {
