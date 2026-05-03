@@ -1,19 +1,20 @@
 spring:
+  main:
+    lazy-initialization: true
   application:
     port: 8080
   jpa:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:postgresql://localhost:5432/kaseauth_db
-    username: postgres
-    password: your_password_here
+    url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
 
 
 server:
-  port: 9500
+  port: 8080
 
 jwt:
-  secret: kaseauth-default-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm
+  secret: ${JWT_SECERT}
   expiration: 86400000
+  refresh-expiration: 604800000
