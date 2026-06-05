@@ -10,10 +10,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @AllArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final XUserDetailsConverter userDetailsConverter;
+  private final XUserDetailsConverter userDetailsConverter;
 
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(userDetailsConverter);
-    }
+  @Override
+  public void addFormatters(FormatterRegistry registry) {
+    registry.addConverter(userDetailsConverter);
+  }
 }

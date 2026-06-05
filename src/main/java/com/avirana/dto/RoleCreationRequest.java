@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public class RoleCreationRequest {
-    @NotBlank(message = "Role name is required")
-    private String roleName;
+  @NotBlank(message = "Role name is required")
+  private String roleName;
 
-    @NotNull(message = "isActive is required")
-    private Boolean isActive;
+  @NotNull(message = "isActive is required")
+  private Boolean isActive;
 }

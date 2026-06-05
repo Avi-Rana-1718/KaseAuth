@@ -7,9 +7,9 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "feature_flag_user_mapping")
 public class FeatureFlagUserMappingEntity extends BaseEntity {
-    @Column(nullable = false)
-    private Integer flagId;
+  @Column(nullable = false)
+  private Integer flagId;
 
-    @Column(nullable = false)
-    private Integer userId;
+  @Column(nullable = false)
+  private Integer userId;
 }

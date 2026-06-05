@@ -11,15 +11,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class UserEntity extends BaseEntity {
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String password;
+  @Column(nullable = false)
+  private String password;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+  @Column(nullable = false, unique = true)
+  private String username;
 
-    @Column(nullable = false)
-    private String organization;
+  @Column(nullable = false)
+  private String organization;
 }

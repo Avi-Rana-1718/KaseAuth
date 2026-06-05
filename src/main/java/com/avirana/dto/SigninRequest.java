@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class SigninRequest {
-    @NotBlank(message = "Email is required")
-    private String email;
+  @NotBlank(message = "Email is required")
+  private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    private String password;
+  @NotBlank(message = "Password is mandatory")
+  private String password;
 }

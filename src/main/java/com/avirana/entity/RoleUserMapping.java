@@ -8,9 +8,9 @@ import jakarta.persistence.Table;
 @Table(name = "role_user_mapping")
 public class RoleUserMapping extends BaseEntity {
 
-    @Column(nullable = false)
-    private Integer roleId;
+  @Column(nullable = false)
+  private Integer roleId;
 
-    @Column(nullable = false)
-    private Integer userId;
+  @Column(nullable = false)
+  private Integer userId;
 }

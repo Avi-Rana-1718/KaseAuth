@@ -1,13 +1,13 @@
 package com.avirana.repository;
 
 import com.avirana.entity.RoleEntity;
-import org.springframework.stereotype.Repository;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Integer> {
-    RoleEntity findByNameAndOrganization(String name, String org);
-    List<RoleEntity> findByOrganizationAndIsActiveTrue(String org);
+  RoleEntity findByNameAndOrganization(String name, String org);
+
+  List<RoleEntity> findByOrganizationAndIsActiveTrue(String org);
 }
