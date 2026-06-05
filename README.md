@@ -1,6 +1,6 @@
 # KaseAuth
 
-> Part of the [Kase](https://github.com/Kase) project
+> Part of the [Kase](https://github.com/Avi-Rana-1718/Kase) project
 
 This service handles identity management, JWT-based authentication, role-based access control, and multi-tenant organization support for the broader Kase ecosystem.
 
