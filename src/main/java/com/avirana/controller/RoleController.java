@@ -26,7 +26,7 @@ public class RoleController {
   private final RoleService roleService;
 
   @PostMapping()
-  public ResponseEntity<String> signup(
+  public ResponseEntity<String> roleCreation(
       @Valid @RequestBody RoleCreationRequest request,
       @NotNull(message = "X-User-Details are mandatory") @RequestHeader("X-User-Details")
           XUserDetails userDetails)
