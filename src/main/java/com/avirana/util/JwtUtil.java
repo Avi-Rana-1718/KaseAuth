@@ -1,5 +1,6 @@
 package com.avirana.util;
 
+import com.avirana.enums.TokenEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -24,10 +25,10 @@ public class JwtUtil {
   @Value("${jwt.refresh-expiration}")
   private long refreshExpirationMillis;
 
-  public String generateRefreshToken(String subject) {
+  public String generateRefreshToken(Integer subject) {
     return Jwts.builder()
-        .subject(subject)
-        .claim("type", "refresh")
+        .subject(subject.toString())
+        .claim("type", TokenEnum.REFRESH.getValue())
         .issuedAt(new Date())
         .expiration(new Date(System.currentTimeMillis() + refreshExpirationMillis))
         .signWith(getSigningKey())
@@ -47,15 +48,14 @@ public class JwtUtil {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
   }
 
-  public String generateToken(String subject) {
+  public String generateToken(Integer subject) {
     return generateToken(subject, Map.of());
   }
 
-  public String generateToken(String subject, Map<String, Object> extraClaims) {
+  public String generateToken(Integer subject, Map<String, Object> extraClaims) {
     return Jwts.builder()
         .claims(extraClaims)
-        .subject(subject)
-        .claim("type", "access")
+        .subject(subject.toString())
         .issuedAt(new Date())
         .expiration(new Date(System.currentTimeMillis() + expirationMillis))
         .signWith(getSigningKey())

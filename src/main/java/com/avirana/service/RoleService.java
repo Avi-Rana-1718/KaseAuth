@@ -1,21 +1,27 @@
 package com.avirana.service;
 
+import com.avirana.dto.AssignRoleRequest;
 import com.avirana.dto.RoleCreationRequest;
+import com.avirana.dto.RoleDetailsDto;
 import com.avirana.dto.XUserDetails;
 import com.avirana.entity.RoleEntity;
+import com.avirana.entity.RoleUserMappingEntity;
 import com.avirana.repository.RoleRepository;
-import java.util.ArrayList;
+import com.avirana.repository.RoleUserMappingRepository;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RoleService {
 
   private final RoleRepository roleRepository;
+  private final RoleUserMappingRepository roleUserMappingRepository;
 
+  @Transactional
   public String createRole(RoleCreationRequest request, XUserDetails userDetails) {
 
     RoleEntity roleEntity =
@@ -34,14 +40,30 @@ public class RoleService {
     return "Successful updated role";
   }
 
-  public List<String> getAllRoles(String org) {
-    List<RoleEntity> roleEntities = roleRepository.findByOrganizationAndIsActiveTrue(org);
-    List<String> roles = new ArrayList<>();
+  @Transactional(readOnly = true)
+  public List<RoleDetailsDto> getAllRoles(String org) {
+    return roleRepository.findByOrganizationAndIsActiveTrue(org);
+  }
 
-    for (RoleEntity roleEntity : roleEntities) {
-      roles.add(roleEntity.getName());
+  @Transactional()
+  public String assignRoles(AssignRoleRequest assignRoleRequest) {
+
+    Integer roleId = assignRoleRequest.getRoleId();
+    Integer userId = assignRoleRequest.getUserId();
+
+    RoleUserMappingEntity roleUserMappingEntity =
+        roleUserMappingRepository.findByUserIdAndRoleId(userId, roleId);
+
+    if (Objects.nonNull(roleUserMappingEntity)) {
+      return "User already has requested role";
     }
 
-    return roles;
+    roleUserMappingEntity = new RoleUserMappingEntity();
+    roleUserMappingEntity.setRoleId(roleId);
+    roleUserMappingEntity.setUserId(userId);
+
+    roleUserMappingRepository.save(roleUserMappingEntity);
+
+    return "Assigned role to user";
   }
 }

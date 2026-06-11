@@ -4,24 +4,39 @@ import com.avirana.dto.SigninRequest;
 import com.avirana.dto.SigninResponse;
 import com.avirana.dto.SignupRequest;
 import com.avirana.dto.XUserDetails;
+import com.avirana.entity.RoleEntity;
+import com.avirana.entity.RoleUserMappingEntity;
 import com.avirana.entity.UserEntity;
 import com.avirana.enums.TokenEnum;
+import com.avirana.repository.RoleRepository;
+import com.avirana.repository.RoleUserMappingRepository;
 import com.avirana.repository.UserRepository;
 import com.avirana.util.JwtUtil;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
   private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
+  private final RoleUserMappingRepository roleUserMappingRepository;
   private final JwtUtil jwtUtil;
 
+  @Transactional
   public String signup(SignupRequest request, String org) {
 
     if (Objects.nonNull(userRepository.findByEmail(request.getEmail()))) {
@@ -39,6 +54,7 @@ public class AuthService {
     return "Created new user";
   }
 
+  @Transactional(readOnly = true)
   public SigninResponse signin(SigninRequest request, String org) {
     UserEntity userEntity = userRepository.findByEmailAndOrganization(request.getEmail(), org);
 
@@ -50,25 +66,31 @@ public class AuthService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
-    String accessToken = jwtUtil.generateToken(request.getEmail());
-    String refreshToken = jwtUtil.generateRefreshToken(request.getEmail());
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("org", org);
+    claims.put("type", TokenEnum.ACCESS.getValue());
+
+    String accessToken = jwtUtil.generateToken(userEntity.getId(), claims);
+    String refreshToken = jwtUtil.generateRefreshToken(userEntity.getId());
 
     return new SigninResponse(accessToken, refreshToken);
   }
 
+  @Transactional(readOnly = true)
   public SigninResponse refresh(String refreshToken) {
     refreshToken = refreshToken.replace("Bearer ", "");
     if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
     }
 
-    String subject = jwtUtil.extractSubject(refreshToken);
-    String newAccessToken = jwtUtil.generateToken(subject);
-    String newRefreshToken = jwtUtil.generateRefreshToken(subject);
+    Integer userId = Integer.parseInt(jwtUtil.extractSubject(refreshToken));
+    String newAccessToken = jwtUtil.generateToken(userId);
+    String newRefreshToken = jwtUtil.generateRefreshToken(userId);
 
     return new SigninResponse(newAccessToken, newRefreshToken);
   }
 
+  @Transactional(readOnly = true)
   public XUserDetails validate(String accessToken) {
     accessToken = accessToken.replace("Bearer ", "");
     if (!jwtUtil.isTokenValid(accessToken)) {
@@ -82,15 +104,41 @@ public class AuthService {
           HttpStatus.UNAUTHORIZED, "Refresh token can't be used to access resources");
     }
 
-    String email = jwtUtil.extractSubject(accessToken);
+    Integer userId = Integer.parseInt(jwtUtil.extractSubject(accessToken));
 
-    UserEntity userEntity = userRepository.findByEmail(email);
+    UserEntity userEntity = userRepository.findByIdAndIsActiveTrue(userId);
+    List<RoleUserMappingEntity> roleUserMappingEntityList =
+        roleUserMappingRepository.findAllByUserIdAndIsActiveTrue(userEntity.getId());
 
     XUserDetails xUserDetails = new XUserDetails();
-    xUserDetails.setEmail(email);
     xUserDetails.setUserId(userEntity.getId());
     xUserDetails.setOrg(userEntity.getOrganization());
+    xUserDetails.setEmail(userEntity.getEmail());
+    xUserDetails.setAssignedRoles(getUserRoles(roleUserMappingEntityList));
 
     return xUserDetails;
+  }
+
+  private List<String> getUserRoles(List<RoleUserMappingEntity> roleUserMappingEntityList) {
+    List<String> resolvedRoles = new ArrayList<>();
+
+    roleUserMappingEntityList.forEach(
+        roleUserMappingEntity -> {
+          Integer roleId = roleUserMappingEntity.getRoleId();
+          Optional<RoleEntity> r = roleRepository.findById(roleId);
+
+          if (r.isEmpty()) {
+            log.info("Role with ID: " + roleId + " exists!");
+            return;
+          }
+
+          RoleEntity roleEntity = r.get();
+
+          String roleKey = roleEntity.getName();
+
+          resolvedRoles.add(roleKey);
+        });
+
+    return resolvedRoles;
   }
 }

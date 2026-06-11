@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class XUserDetails {
   private Integer userId;
+  private List<String> assignedRoles;
   private String email;
   private List<Map<String, Map<String, String>>> grants;
   private String org;
