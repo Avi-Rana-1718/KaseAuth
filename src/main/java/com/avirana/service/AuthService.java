@@ -4,10 +4,14 @@ import com.avirana.dto.SigninRequest;
 import com.avirana.dto.SigninResponse;
 import com.avirana.dto.SignupRequest;
 import com.avirana.dto.XUserDetails;
+import com.avirana.entity.FeatureFlagMasterEntity;
+import com.avirana.entity.FeatureFlagOrgMappingEntity;
 import com.avirana.entity.RoleEntity;
 import com.avirana.entity.RoleUserMappingEntity;
 import com.avirana.entity.UserEntity;
 import com.avirana.enums.TokenEnum;
+import com.avirana.repository.FeatureFlagMasterRepository;
+import com.avirana.repository.FeatureFlagOrgMappingRepository;
 import com.avirana.repository.RoleRepository;
 import com.avirana.repository.RoleUserMappingRepository;
 import com.avirana.repository.UserRepository;
@@ -34,6 +38,8 @@ public class AuthService {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
   private final RoleUserMappingRepository roleUserMappingRepository;
+  private final FeatureFlagOrgMappingRepository featureFlagOrgMappingRepository;
+  private final FeatureFlagMasterRepository featureFlagMasterRepository;
   private final JwtUtil jwtUtil;
 
   @Transactional
@@ -107,19 +113,20 @@ public class AuthService {
     Integer userId = Integer.parseInt(jwtUtil.extractSubject(accessToken));
 
     UserEntity userEntity = userRepository.findByIdAndIsActiveTrue(userId);
-    List<RoleUserMappingEntity> roleUserMappingEntityList =
-        roleUserMappingRepository.findAllByUserIdAndIsActiveTrue(userEntity.getId());
-
     XUserDetails xUserDetails = new XUserDetails();
     xUserDetails.setUserId(userEntity.getId());
     xUserDetails.setOrg(userEntity.getOrganization());
     xUserDetails.setEmail(userEntity.getEmail());
-    xUserDetails.setAssignedRoles(getUserRoles(roleUserMappingEntityList));
+    xUserDetails.setAssignedRoles(getUserRoles(userId));
+    xUserDetails.setGrants(getOrgFlag(userEntity.getOrganization()));
 
     return xUserDetails;
   }
 
-  private List<String> getUserRoles(List<RoleUserMappingEntity> roleUserMappingEntityList) {
+  private List<String> getUserRoles(Integer userId) {
+    List<RoleUserMappingEntity> roleUserMappingEntityList =
+        roleUserMappingRepository.findAllByUserIdAndIsActiveTrue(userId);
+
     List<String> resolvedRoles = new ArrayList<>();
 
     roleUserMappingEntityList.forEach(
@@ -140,5 +147,24 @@ public class AuthService {
         });
 
     return resolvedRoles;
+  }
+
+  private List<String> getOrgFlag(String org) {
+    List<FeatureFlagOrgMappingEntity> featureFlagOrgMappingEntities =
+        featureFlagOrgMappingRepository.findAllByOrganizationAndIsActiveTrue(org);
+
+    log.info("org is" + org);
+    List<String> flagNames = new ArrayList<>();
+
+    featureFlagOrgMappingEntities.forEach(
+        featureFlagOrgMappingEntity -> {
+          FeatureFlagMasterEntity featureFlagMasterEntity =
+              featureFlagMasterRepository.findById(featureFlagOrgMappingEntity.getFlagId()).get();
+          log.info(featureFlagMasterEntity.getName());
+          log.info(String.valueOf(featureFlagOrgMappingEntity.getFlagId()));
+          flagNames.add(featureFlagMasterEntity.getName());
+        });
+
+    return flagNames;
   }
 }
